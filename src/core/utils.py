@@ -1,55 +1,51 @@
-"""
-Lab 11 — Helper Utilities
-"""
-from google.genai import types
+"""Helpers for sending messages through the OpenRouter pipeline."""
+from dataclasses import dataclass, field
+from uuid import uuid4
+
+from core.config import create_openrouter_client
+
+
+@dataclass
+class ChatSession:
+    """Minimal conversation state compatible with the original lab helper."""
+
+    id: str = field(default_factory=lambda: str(uuid4()))
+    messages: list = field(default_factory=list)
 
 
 async def chat_with_agent(agent, runner, user_message: str, session_id=None):
-    """Send a message to the agent and get the response.
+    """Run input guards, call OpenRouter, then run output guards."""
+    session = runner.get_session(session_id)
 
-    Args:
-        agent: The LlmAgent instance
-        runner: The InMemoryRunner instance
-        user_message: Plain text message to send
-        session_id: Optional session ID to continue a conversation
+    for plugin in runner.plugins:
+        check_input = getattr(plugin, "check_input", None)
+        if check_input:
+            block_message = await check_input(user_message)
+            if block_message:
+                return block_message, session
 
-    Returns:
-        Tuple of (response_text, session)
-    """
-    user_id = "student"
-    app_name = runner.app_name
-
-    session = None
-    if session_id is not None:
-        try:
-            session = await runner.session_service.get_session(
-                app_name=app_name, user_id=user_id, session_id=session_id
-            )
-        except (ValueError, KeyError):
-            pass
-
-    if session is None:
-        try:
-            session = await runner.session_service.create_session(
-                app_name=app_name, user_id=user_id
-            )
-        except Exception:
-            session = await runner.session_service.create_session(
-                app_name=app_name, user_id=user_id
-            )
-
-    content = types.Content(
-        role="user",
-        parts=[types.Part.from_text(text=user_message)],
+    messages = [
+        {"role": "system", "content": agent.instruction},
+        *session.messages,
+        {"role": "user", "content": user_message},
+    ]
+    client = create_openrouter_client()
+    response = client.chat.completions.create(
+        model=agent.model,
+        messages=messages,
+        temperature=agent.temperature,
     )
+    if not response.choices:
+        raise RuntimeError("OpenRouter returned no choices.")
 
-    final_response = ""
-    async for event in runner.run_async(
-        user_id=user_id, session_id=session.id, new_message=content
-    ):
-        if hasattr(event, "content") and event.content and event.content.parts:
-            for part in event.content.parts:
-                if hasattr(part, "text") and part.text:
-                    final_response += part.text
+    response_text = response.choices[0].message.content or ""
+    for plugin in runner.plugins:
+        check_output = getattr(plugin, "check_output", None)
+        if check_output:
+            response_text = await check_output(response_text)
 
-    return final_response, session
+    session.messages.extend([
+        {"role": "user", "content": user_message},
+        {"role": "assistant", "content": response_text},
+    ])
+    return response_text, session

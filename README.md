@@ -44,15 +44,15 @@ Day-11-Guardrails-HITL-Responsible-AI/
 ### Google Colab (recommended)
 
 1. Upload `notebooks/lab11_guardrails_hitl.ipynb` to Google Colab
-2. Create a Google API Key at [Google AI Studio](https://aistudio.google.com/apikey)
-3. Save the API key in Colab Secrets as `GOOGLE_API_KEY`
+2. Create an OpenRouter API Key at [OpenRouter](https://openrouter.ai/keys)
+3. Save the API key in Colab Secrets as `OPENROUTER_API_KEY`
 4. Run cells in order
 
 ### Local (Notebook)
 
 ```bash
 pip install -r requirements.txt
-export GOOGLE_API_KEY="your-api-key-here"
+export OPENROUTER_API_KEY="your-api-key-here"
 jupyter notebook notebooks/lab11_guardrails_hitl.ipynb
 ```
 
@@ -61,7 +61,7 @@ jupyter notebook notebooks/lab11_guardrails_hitl.ipynb
 ```bash
 cd src/
 pip install -r ../requirements.txt
-export GOOGLE_API_KEY="your-api-key-here"
+export OPENROUTER_API_KEY="your-api-key-here"
 
 # Run the full lab
 python main.py
@@ -81,9 +81,9 @@ python hitl/hitl.py
 
 ### Tools Used
 
-- **Google ADK** — Agent Development Kit (plugins, runners)
+- **OpenAI (via OpenRouter)** — Agent backend and LLM calls
 - **NeMo Guardrails** — NVIDIA framework with Colang (declarative safety rules)
-- **Gemini 2.5 Flash/Flash Lite** — LLM backend (you can switch to other models if you want)
+- **GPT-4o-mini** — LLM backend (you can switch to other models if you want)
 
 ## Lab Structure (2.5 hours)
 
@@ -98,7 +98,7 @@ python hitl/hitl.py
 
 ## Deliverables
 
-1. **Security Report**: Before/after comparison of 5+ attacks (ADK + NeMo)
+1. **Security Report**: Before/after comparison of 5+ attacks (Guardrails + NeMo)
 2. **HITL Flowchart**: 3 decision points with escalation paths
 
 ## 13 TODOs
@@ -106,15 +106,15 @@ python hitl/hitl.py
 | # | Description | Framework |
 |---|-------------|-----------|
 | 1 | Write 5 adversarial prompts | - |
-| 2 | Generate attack test cases with AI | Gemini |
+| 2 | Generate attack test cases with AI | OpenAI |
 | 3 | Injection detection (regex) | Python |
 | 4 | Topic filter | Python |
-| 5 | Input Guardrail Plugin | Google ADK |
+| 5 | Input Guardrail Plugin | Python |
 | 6 | Content filter (PII, secrets) | Python |
-| 7 | LLM-as-Judge safety check | Gemini |
-| 8 | Output Guardrail Plugin | Google ADK |
+| 7 | LLM-as-Judge safety check | OpenAI |
+| 8 | Output Guardrail Plugin | Python |
 | 9 | NeMo Guardrails Colang config | NeMo |
-| 10 | Rerun 5 attacks with guardrails | Google ADK |
+| 10 | Rerun 5 attacks with guardrails | Python |
 | 11 | Automated security testing pipeline | Python |
 | 12 | Confidence Router (HITL) | Python |
 | 13 | Design 3 HITL decision points | Design |
@@ -123,8 +123,7 @@ python hitl/hitl.py
 
 - [OWASP Top 10 for LLM](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
 - [NeMo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails)
-- [Google ADK Documentation](https://google.github.io/adk-docs/)
-- [Official Google's Gemini cookbook](https://github.com/google-gemini/cookbook/blob/main/examples/gemini_google_adk_model_guardrails.ipynb)
+- [OpenAI Python Library](https://github.com/openai/openai-python)
 - [AI Safety Fundamentals](https://aisafetyfundamentals.com/)
 - [AI Red Teaming Guide](https://github.com/requie/AI-Red-Teaming-Guide)
 - [antoan.ai - AI Safety Vietnam](https://antoan.ai)

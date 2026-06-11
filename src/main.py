@@ -128,10 +128,11 @@ async def main(parts=None):
     Args:
         parts: List of part numbers to run, or None for all
     """
-    setup_api_key()
-
     if parts is None:
         parts = [1, 2, 3, 4]
+
+    if any(part in (1, 2, 3) for part in parts):
+        setup_api_key()
 
     for part in parts:
         if part == 1:
