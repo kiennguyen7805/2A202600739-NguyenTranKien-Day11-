@@ -13,7 +13,7 @@ def setup_api_key() -> str:
     """Load the OpenRouter key without storing it in source files."""
     api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
-        api_key = getpass("Enter OPENROUTER_API_KEY: ")
+        api_key = getpass("Enter OPENROUTER_API_KEY: ").strip()
         os.environ["OPENROUTER_API_KEY"] = api_key
     # NeMo and other OpenAI-compatible clients read these conventional names.
     os.environ.setdefault("OPENAI_API_KEY", api_key)
